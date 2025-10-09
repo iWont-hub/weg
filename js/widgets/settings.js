@@ -1,4 +1,110 @@
-import { loadSettings, saveSettings, applySettings, STORAGE_KEYS, refreshIcons } from '../core/storage.js';
+import { loadSettings, saveSettings, applySettings, STORAGE_KEYS, refreshIcons, isOnline } from '../core/storage.js';
+import { getCustomWallpapers, saveCustomWallpaper, deleteCustomWallpaper, setCustomWallpaper, pickUnsplashWallpaper, pickLocalWallpaper } from './wallpaper.js';
+
+// Custom Wallpaper Gallery
+function initCustomWallpapers(bgPreloader) {
+    const uploadInput = document.getElementById('wallpaperUploadInput');
+    const gallery = document.getElementById('customWallpaperGallery');
+    
+    // Render gallery
+    function renderGallery() {
+        const wallpapers = getCustomWallpapers();
+        const currentWallpaper = localStorage.getItem('lockedWallpaper');
+        
+        if (wallpapers.length === 0) {
+            gallery.innerHTML = '<div class="custom-wallpaper-empty">No custom wallpapers yet. Upload one to get started!</div>';
+            return;
+        }
+        
+        gallery.innerHTML = wallpapers.map(wallpaper => {
+            const isActive = currentWallpaper === wallpaper.data;
+            return `
+                <div class="custom-wallpaper-item ${isActive ? 'custom-wallpaper-active' : ''}" data-id="${wallpaper.id}">
+                    <img src="${wallpaper.data}" alt="Custom wallpaper">
+                    <button class="custom-wallpaper-delete" data-id="${wallpaper.id}">
+                        <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+        
+        // Refresh icons for delete buttons
+        refreshIcons();
+        
+        // Add click handlers
+        gallery.querySelectorAll('.custom-wallpaper-item').forEach(item => {
+            item.addEventListener('click', async (e) => {
+                if (e.target.closest('.custom-wallpaper-delete')) return;
+                const id = item.dataset.id;
+                const wallpaper = wallpapers.find(w => w.id === id);
+                if (wallpaper && bgPreloader) {
+                    await setCustomWallpaper(wallpaper.data, bgPreloader);
+                    renderGallery();
+                }
+            });
+        });
+        
+        // Add delete handlers
+        gallery.querySelectorAll('.custom-wallpaper-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                if (confirm('Delete this wallpaper?')) {
+                    deleteCustomWallpaper(id);
+                    renderGallery();
+                }
+            });
+        });
+    }
+    
+    // Handle upload
+    if (uploadInput) {
+        uploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image is too large. Please upload an image smaller than 5MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageData = event.target.result;
+                const saved = saveCustomWallpaper(imageData);
+                if (saved) {
+                    renderGallery();
+                    // Show success message
+                    const label = uploadInput.nextElementSibling;
+                    const originalText = label.innerHTML;
+                    label.innerHTML = '<i data-lucide="check"></i> Uploaded!';
+                    label.style.background = 'rgba(16, 185, 129, 0.2)';
+                    label.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                    
+                    setTimeout(() => {
+                        label.innerHTML = originalText;
+                        label.style.background = '';
+                        label.style.borderColor = '';
+                        refreshIcons();
+                    }, 2000);
+                }
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset input
+            uploadInput.value = '';
+        });
+    }
+    
+    // Initial render
+    renderGallery();
+}
 
 // Import/Export functionality
 function initImportExport() {
@@ -88,7 +194,7 @@ function initImportExport() {
 }
 
 // Initialize settings panel
-export function initSettings() {
+export function initSettings(bgPreloader = null) {
     const settings = loadSettings();
     applySettings(settings);
     
@@ -100,6 +206,7 @@ export function initSettings() {
     const quoteToggle = document.getElementById('quoteToggle');
     const tempUnitSelect = document.getElementById('tempUnitSelect');
     const timeFormatSelect = document.getElementById('timeFormatSelect');
+    const wallpaperThemeSelect = document.getElementById('wallpaperThemeSelect');
     const clearDataBtn = document.getElementById('clearDataBtn');
     const showOnboardingBtn = document.getElementById('showOnboardingBtn');
 
@@ -109,6 +216,7 @@ export function initSettings() {
     if (quoteToggle) quoteToggle.checked = settings.quoteEnabled;
     if (tempUnitSelect) tempUnitSelect.value = settings.temperatureUnit || 'C';
     if (timeFormatSelect) timeFormatSelect.value = settings.timeFormat || '12';
+    if (wallpaperThemeSelect) wallpaperThemeSelect.value = settings.wallpaperTheme || 'dark';
 
     // Initialize tabs
     initSettingsTabs();
@@ -133,7 +241,7 @@ export function initSettings() {
         });
     }
 
-    // Font change with animation
+    // Font change
     if (fontSelect) {
         fontSelect.addEventListener('change', () => {
             const newSettings = { ...loadSettings(), fontFamily: fontSelect.value };
@@ -160,6 +268,48 @@ export function initSettings() {
             if (window.initWeather) {
                 window.initWeather();
             }
+        });
+    }
+
+    // Wallpaper theme change
+    if (wallpaperThemeSelect && bgPreloader) {
+        wallpaperThemeSelect.addEventListener('change', async () => {
+            const newTheme = wallpaperThemeSelect.value;
+            const newSettings = { ...loadSettings(), wallpaperTheme: newTheme };
+            saveSettings(newSettings);
+            
+            // Show visual feedback
+            const originalBg = wallpaperThemeSelect.style.background;
+            wallpaperThemeSelect.style.background = 'rgba(16, 185, 129, 0.2)';
+            
+            // Unlock wallpaper if it's locked (custom wallpaper) to allow theme change
+            if (bgPreloader.isWallpaperLocked()) {
+                bgPreloader.isLocked = false;
+                localStorage.removeItem('lockedWallpaper');
+                console.log('Unlocked custom wallpaper to apply theme change');
+                
+                // Update lock button UI if it exists
+                const lockBtn = document.getElementById('wallpaperLockBtn');
+                const lockIcon = document.getElementById('lockIcon');
+                const unlockIcon = document.getElementById('unlockIcon');
+                if (lockBtn && lockIcon && unlockIcon) {
+                    lockBtn.classList.remove('locked');
+                    lockIcon.style.display = 'none';
+                    unlockIcon.style.display = 'block';
+                    lockBtn.title = 'Lock Current Wallpaper';
+                }
+            }
+            
+            // Reload wallpaper immediately with new theme
+            if (isOnline) {
+                await pickUnsplashWallpaper(bgPreloader, newTheme);
+            } else {
+                await pickLocalWallpaper(bgPreloader);
+            }
+            
+            setTimeout(() => {
+                wallpaperThemeSelect.style.background = originalBg;
+            }, 1000);
         });
     }
 
@@ -218,6 +368,11 @@ export function initSettings() {
 
     // Initialize import/export
     initImportExport();
+    
+    // Initialize custom wallpapers
+    if (bgPreloader) {
+        initCustomWallpapers(bgPreloader);
+    }
 }
 
 // Initialize settings tabs

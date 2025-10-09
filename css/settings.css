@@ -146,6 +146,7 @@
     transform: scale(1.02);
 }
 
+
 .setting-toggle {
     display: flex !important;
     align-items: center;
@@ -424,4 +425,76 @@
     opacity: 0.6;
     margin-top: 4px;
     line-height: 1.4;
+}
+
+/* Custom Wallpaper Gallery */
+.custom-wallpaper-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.custom-wallpaper-item {
+    position: relative;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--glass-border);
+    cursor: pointer;
+    transition: var(--spring-transition);
+}
+
+.custom-wallpaper-item:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.custom-wallpaper-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.custom-wallpaper-delete {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 2;
+}
+
+.custom-wallpaper-item:hover .custom-wallpaper-delete {
+    opacity: 1;
+}
+
+.custom-wallpaper-delete:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
+}
+
+.custom-wallpaper-active {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.custom-wallpaper-empty {
+    text-align: center;
+    padding: 32px;
+    opacity: 0.5;
+    font-size: 0.85rem;
 }

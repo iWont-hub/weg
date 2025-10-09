@@ -4,7 +4,8 @@ export const STORAGE_KEYS = {
     username: 'username',
     wallpaperIndex: 'wallpaperIndex',
     searchHistory: 'searchHistory',
-    settings: 'betterHomeSettings'
+    settings: 'betterHomeSettings',
+    customWallpapers: 'customWallpapers'
 };
 
 // Default settings
@@ -13,7 +14,8 @@ export const DEFAULT_SETTINGS = {
     weatherEnabled: true,
     quoteEnabled: true,
     temperatureUnit: 'C', // C for Celsius, F for Fahrenheit
-    timeFormat: '12' // 12 or 24 hour format
+    timeFormat: '12', // 12 or 24 hour format
+    wallpaperTheme: 'dark' // dark, summer, abstract, urban, space (nature is empty)
 };
 
 // Load settings

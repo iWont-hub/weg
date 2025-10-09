@@ -4,8 +4,61 @@ import { isOnline } from '../core/storage.js';
 // Enhanced wallpaper system with preloading
 const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
 
+// Custom wallpaper management
+export function getCustomWallpapers() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEYS.customWallpapers);
+        return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+        console.warn('Failed to load custom wallpapers:', e);
+        return [];
+    }
+}
+
+export function saveCustomWallpaper(imageData) {
+    try {
+        const wallpapers = getCustomWallpapers();
+        const newWallpaper = {
+            id: Date.now().toString(),
+            data: imageData,
+            createdAt: new Date().toISOString()
+        };
+        wallpapers.push(newWallpaper);
+        localStorage.setItem(STORAGE_KEYS.customWallpapers, JSON.stringify(wallpapers));
+        return newWallpaper;
+    } catch (e) {
+        console.error('Failed to save custom wallpaper:', e);
+        if (e.name === 'QuotaExceededError') {
+            alert('Storage quota exceeded. Try uploading a smaller image or delete some existing wallpapers.');
+        }
+        return null;
+    }
+}
+
+export function deleteCustomWallpaper(id) {
+    try {
+        const wallpapers = getCustomWallpapers();
+        const filtered = wallpapers.filter(w => w.id !== id);
+        localStorage.setItem(STORAGE_KEYS.customWallpapers, JSON.stringify(filtered));
+        return true;
+    } catch (e) {
+        console.error('Failed to delete custom wallpaper:', e);
+        return false;
+    }
+}
+
+export async function setCustomWallpaper(imageData, bgPreloader) {
+    const success = await bgPreloader.setBackground(imageData, true);
+    if (success) {
+        // Lock the wallpaper to prevent it from changing
+        bgPreloader.isLocked = true;
+        localStorage.setItem('lockedWallpaper', imageData);
+    }
+    return success;
+}
+
 export async function pickLocalWallpaper(bgPreloader) {
-    // If wallpaper is locked, just set it
+    // If wallpaper is locked (custom wallpaper set), just use it
     if (bgPreloader.isWallpaperLocked()) {
         const locked = localStorage.getItem('lockedWallpaper');
         if (locked) {
@@ -21,18 +74,61 @@ export async function pickLocalWallpaper(bgPreloader) {
     if (success) {
         localStorage.setItem(STORAGE_KEYS.wallpaperIndex, (idx + 1) % localWallpapers.length);
     } else {
-        // Try fallback gradient
-        document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        console.warn(`Failed to load wallpaper: ${wallpaperUrl}, using fallback`);
+        // Try next local wallpaper as fallback
+        const nextIdx = (idx + 1) % localWallpapers.length;
+        const fallbackUrl = localWallpapers[nextIdx];
+        await bgPreloader.setBackground(fallbackUrl);
+        console.warn(`Failed to load wallpaper: ${wallpaperUrl}, using local fallback`);
     }
 }
 
+// Wallpaper theme categories
+// Note: Using local wallpapers since Unsplash URLs need proper photo IDs
+const wallpaperThemes = {
+    nature: [
+        'https://images.unsplash.com/photo-1612981453053-184fd648b66b?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1619266465172-02a857c3556d?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1503993656770-0479a287559e?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1515961896317-adf9e14bdcc0?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1608592077365-c6399182e63c?w=1920&q=95&auto=format&fit=crop'
+    ],
+    dark: [
+        'https://images.unsplash.com/photo-1507486435406-33d376619b3d?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1672141566599-680a508f8041?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1573059225035-dcef0018bcc5?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1522163723043-478ef79a5bb4?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1571343220742-bdfa3b4e20c0?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1652344959967-a43a9f1cf668?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1651833757675-ac8580cf4ffd?w=1920&q=95&auto=format&fit=crop'
+    ],
+    summer: [
+        'https://images.unsplash.com/photo-1512100356356-de1b84283e18?w=1920&q=95&auto=format&fit=crop'
+    ],
+    abstract: [
+        'https://images.unsplash.com/photo-1606054512716-fb198b6686c9?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1668455199701-284281127a87?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1655841439659-0afc60676b70?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?w=1920&q=95&auto=format&fit=crop'
+    ],
+    urban: [],
+    space: [
+        'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1656077217715-bdaeb06bd01f?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=1920&q=95&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1920&q=95&auto=format&fit=crop'
+    ]
+};
+
 // Enhanced Unsplash wallpaper with preloading
-export async function pickUnsplashWallpaper(bgPreloader) {
-    // If wallpaper is locked, just set it
+export async function pickUnsplashWallpaper(bgPreloader, theme = 'dark') {
+    console.log(`Loading wallpaper with theme: ${theme}`);
+    
+    // If wallpaper is locked (custom wallpaper set), just use it - don't load from web
     if (bgPreloader.isWallpaperLocked()) {
         const locked = localStorage.getItem('lockedWallpaper');
         if (locked) {
+            console.log('Using locked custom wallpaper, skipping web load');
             await bgPreloader.setBackground(locked, true);
             return;
         }
@@ -41,90 +137,49 @@ export async function pickUnsplashWallpaper(bgPreloader) {
     // Try to use a preloaded wallpaper first
     const preloaded = await bgPreloader.getNextWallpaper();
     if (preloaded) {
+        console.log('Using preloaded wallpaper');
         const success = await bgPreloader.setBackground(preloaded);
         if (success) return;
     }
     
-    // If no preloaded wallpaper, get a fresh one
-    const unsplashUrls = [
-        // Nature & Landscapes
-        'https://source.unsplash.com/1920x1080/?nature,landscape',
-        'https://source.unsplash.com/1920x1080/?mountains,nature',
-        'https://source.unsplash.com/1920x1080/?forest,trees',
-        'https://source.unsplash.com/1920x1080/?ocean,water',
-        'https://source.unsplash.com/1920x1080/?sky,clouds',
-        'https://source.unsplash.com/1920x1080/?sunset,sunrise',
-        'https://source.unsplash.com/1920x1080/?beach,tropical',
-        'https://source.unsplash.com/1920x1080/?desert,sand',
-        
-        // Abstract & Minimal
-        'https://source.unsplash.com/1920x1080/?abstract,minimal',
-        'https://source.unsplash.com/1920x1080/?gradient,colorful',
-        'https://source.unsplash.com/1920x1080/?geometric,pattern',
-        'https://source.unsplash.com/1920x1080/?texture,material',
-        'https://source.unsplash.com/1920x1080/?dark,minimal',
-        'https://source.unsplash.com/1920x1080/?light,bright',
-        
-        // Urban & Architecture
-        'https://source.unsplash.com/1920x1080/?city,urban',
-        'https://source.unsplash.com/1920x1080/?architecture,building',
-        'https://source.unsplash.com/1920x1080/?street,night',
-        'https://source.unsplash.com/1920x1080/?modern,design',
-        
-        // Space & Science
-        'https://source.unsplash.com/1920x1080/?space,galaxy',
-        'https://source.unsplash.com/1920x1080/?stars,night',
-        'https://source.unsplash.com/1920x1080/?nebula,cosmos',
-        
-        // Technology
-        'https://source.unsplash.com/1920x1080/?technology,digital',
-        'https://source.unsplash.com/1920x1080/?computer,tech',
-        'https://source.unsplash.com/1920x1080/?code,programming'
-    ];
+    // Get URLs for selected theme
+    const themeUrls = wallpaperThemes[theme] || wallpaperThemes.dark;
+    console.log(`Theme has ${themeUrls.length} wallpaper options`);
     
-    // Add random parameter to avoid caching
-    const randomParam = `&t=${Date.now()}`;
-    const selectedUrl = unsplashUrls[Math.floor(Math.random() * unsplashUrls.length)] + randomParam;
+    // If theme has no images, fall back to local wallpapers
+    if (themeUrls.length === 0) {
+        console.log(`Theme '${theme}' has no images, using local wallpapers`);
+        await pickLocalWallpaper(bgPreloader);
+        return;
+    }
     
+    // Select a random wallpaper from the theme
+    const selectedUrl = themeUrls[Math.floor(Math.random() * themeUrls.length)];
+    
+    console.log(`Attempting to load: ${selectedUrl}`);
     const success = await bgPreloader.setBackground(selectedUrl);
+    
     if (!success) {
         console.warn('Primary Unsplash failed, trying alternative...');
-        await tryAlternativeUnsplash(bgPreloader);
+        await tryAlternativeUnsplash(bgPreloader, theme);
     }
 }
 
-async function tryAlternativeUnsplash(bgPreloader) {
-    // Large collection of specific high-quality Unsplash photos as backup
-    const backupUrls = [
-        // Nature & Landscapes
-        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1418065460487-3956c3043904?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1501436513145-30f24e19fcc4?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&h=1080&fit=crop&auto=format',
-        
-        // Abstract & Minimal
-        'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1552083375-1447ce00c827?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1557682268-e3955ed5d83f?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop&auto=format',
-        
-        // Space & Cosmos
-        'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&h=1080&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?w=1920&h=1080&fit=crop&auto=format'
-    ];
+async function tryAlternativeUnsplash(bgPreloader, theme = 'dark') {
+    // Try to get another URL from the same theme
+    const themeUrls = wallpaperThemes[theme] || wallpaperThemes.dark;
     
-    const backupUrl = backupUrls[Math.floor(Math.random() * backupUrls.length)];
-    const success = await bgPreloader.setBackground(backupUrl);
+    // If no URLs available, fall back to local
+    if (themeUrls.length === 0) {
+        console.warn('No alternative URLs, falling back to local wallpapers');
+        await pickLocalWallpaper(bgPreloader);
+        return;
+    }
+    
+    const alternativeUrl = themeUrls[Math.floor(Math.random() * themeUrls.length)];
+    
+    console.log(`Trying alternative: ${alternativeUrl}`);
+    const success = await bgPreloader.setBackground(alternativeUrl);
     if (!success) {
         console.warn('All Unsplash options failed, falling back to local wallpapers');
         await pickLocalWallpaper(bgPreloader);

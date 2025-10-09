@@ -101,26 +101,15 @@ export class BackgroundPreloader {
 
     // Preload next wallpapers for faster switching
     async preloadNextWallpapers() {
-        const isOnline = navigator.onLine;
-        if (isOnline) {
-            // Preload multiple Unsplash alternatives
-            const unsplashUrls = [];
-            for (let i = 0; i < this.PRELOAD_COUNT; i++) {
-                unsplashUrls.push(
-                    `https://source.unsplash.com/1920x1080/?nature,landscape&t=${Date.now() + i}`,
-                    `https://source.unsplash.com/1920x1080/?mountains,nature&t=${Date.now() + i + 1000}`,
-                    `https://source.unsplash.com/1920x1080/?abstract,minimal&t=${Date.now() + i + 2000}`,
-                    `https://source.unsplash.com/1920x1080/?space,galaxy&t=${Date.now() + i + 3000}`,
-                    `https://source.unsplash.com/1920x1080/?ocean,water&t=${Date.now() + i + 4000}`
-                );
-            }
-            
-            this.preloadImages(unsplashUrls);
-        } else {
-            // Preload all local wallpapers
-            const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
-            this.preloadImages(localWallpapers);
+        // Don't preload if wallpaper is locked (custom wallpaper set)
+        if (this.isLocked) {
+            console.log('Wallpaper is locked, skipping preload');
+            return;
         }
+        
+        // Always preload local wallpapers for faster fallback
+        const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+        this.preloadImages(localWallpapers);
     }
 
     // Get a preloaded background or fallback
@@ -134,12 +123,19 @@ export class BackgroundPreloader {
 
     // Get next preloaded wallpaper
     async getNextWallpaper() {
+        // Don't return preloaded if locked
+        if (this.isLocked) {
+            return null;
+        }
+        
         const preloaded = this.getPreloadedBackground();
         if (preloaded) {
             // Remove used wallpaper from cache to get fresh ones
             this.preloadedImages.delete(preloaded);
-            // Preload more in background
-            setTimeout(() => this.preloadNextWallpapers(), 1000);
+            // Preload more in background (only if not locked)
+            if (!this.isLocked) {
+                setTimeout(() => this.preloadNextWallpapers(), 1000);
+            }
             return preloaded;
         }
         return null;

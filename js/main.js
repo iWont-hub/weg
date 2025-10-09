@@ -1,5 +1,5 @@
 // Import core modules
-import { isOnline } from './core/storage.js';
+import { isOnline, loadSettings } from './core/storage.js';
 import { BackgroundPreloader } from './core/background.js';
 
 // Import widget modules
@@ -93,7 +93,7 @@ async function init() {
     bgPreloader.preloadNextWallpapers();
     
     // Initialize settings first
-    initSettings();
+    initSettings(bgPreloader);
     
     // Initialize UI components
     updateGreeting();
@@ -107,8 +107,11 @@ async function init() {
     initWallpaperLock();
     
     // Choose and set wallpaper with preloading
+    const settings = loadSettings();
+    const wallpaperTheme = settings.wallpaperTheme || 'dark';
+    
     if (isOnline) {
-        await pickUnsplashWallpaper(bgPreloader);
+        await pickUnsplashWallpaper(bgPreloader, wallpaperTheme);
     } else {
         await pickLocalWallpaper(bgPreloader);
     }
@@ -119,6 +122,7 @@ async function init() {
     // Make functions available globally for inline events
     window.updateGreeting = updateGreeting;
     window.renderBookmarks = renderBookmarks;
+    window.bgPreloader = bgPreloader; // Make bgPreloader globally accessible
 }
 
 // Start when DOM is ready
