@@ -120,6 +120,47 @@ const wallpaperThemes = {
     ]
 };
 
+// Wallpaper history tracking to prevent repeats
+function getUsedWallpapers(theme) {
+    const key = `usedWallpapers_${theme}`;
+    const used = localStorage.getItem(key);
+    return used ? JSON.parse(used) : [];
+}
+
+function addUsedWallpaper(theme, url) {
+    const key = `usedWallpapers_${theme}`;
+    const used = getUsedWallpapers(theme);
+    if (!used.includes(url)) {
+        used.push(url);
+        localStorage.setItem(key, JSON.stringify(used));
+    }
+}
+
+export function resetUsedWallpapers(theme) {
+    const key = `usedWallpapers_${theme}`;
+    localStorage.removeItem(key);
+    console.log(`Reset wallpaper history for theme '${theme}'`);
+}
+
+function getNextUnusedWallpaper(theme) {
+    const themeUrls = wallpaperThemes[theme] || wallpaperThemes.dark;
+    const used = getUsedWallpapers(theme);
+    
+    // If all wallpapers have been used, reset the history
+    if (used.length >= themeUrls.length) {
+        console.log(`All ${themeUrls.length} wallpapers used for theme '${theme}', resetting history`);
+        resetUsedWallpapers(theme);
+        return themeUrls[0]; // Start fresh with first wallpaper
+    }
+    
+    // Find unused wallpapers
+    const unused = themeUrls.filter(url => !used.includes(url));
+    
+    // Select random from unused
+    const selectedUrl = unused[Math.floor(Math.random() * unused.length)];
+    return selectedUrl;
+}
+
 // Enhanced Unsplash wallpaper with preloading
 export async function pickUnsplashWallpaper(bgPreloader, theme = 'dark') {
     console.log(`Loading wallpaper with theme: ${theme}`);
@@ -153,11 +194,17 @@ export async function pickUnsplashWallpaper(bgPreloader, theme = 'dark') {
         return;
     }
     
-    // Select a random wallpaper from the theme
-    const selectedUrl = themeUrls[Math.floor(Math.random() * themeUrls.length)];
+    // Select next unused wallpaper from the theme
+    const selectedUrl = getNextUnusedWallpaper(theme);
     
     console.log(`Attempting to load: ${selectedUrl}`);
     const success = await bgPreloader.setBackground(selectedUrl);
+    
+    if (success) {
+        // Mark this wallpaper as used
+        addUsedWallpaper(theme, selectedUrl);
+        console.log(`Marked wallpaper as used for theme '${theme}'`);
+    }
     
     if (!success) {
         console.warn('Primary Unsplash failed, trying alternative...');
@@ -176,11 +223,16 @@ async function tryAlternativeUnsplash(bgPreloader, theme = 'dark') {
         return;
     }
     
-    const alternativeUrl = themeUrls[Math.floor(Math.random() * themeUrls.length)];
+    const alternativeUrl = getNextUnusedWallpaper(theme);
     
     console.log(`Trying alternative: ${alternativeUrl}`);
     const success = await bgPreloader.setBackground(alternativeUrl);
-    if (!success) {
+    
+    if (success) {
+        // Mark this wallpaper as used
+        addUsedWallpaper(theme, alternativeUrl);
+        console.log(`Marked alternative wallpaper as used for theme '${theme}'`);
+    } else {
         console.warn('All Unsplash options failed, falling back to local wallpapers');
         await pickLocalWallpaper(bgPreloader);
     }

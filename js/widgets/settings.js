@@ -1,5 +1,5 @@
 import { loadSettings, saveSettings, applySettings, STORAGE_KEYS, refreshIcons, isOnline } from '../core/storage.js';
-import { getCustomWallpapers, saveCustomWallpaper, deleteCustomWallpaper, setCustomWallpaper, pickUnsplashWallpaper, pickLocalWallpaper } from './wallpaper.js';
+import { getCustomWallpapers, saveCustomWallpaper, deleteCustomWallpaper, setCustomWallpaper, pickUnsplashWallpaper, pickLocalWallpaper, resetUsedWallpapers } from './wallpaper.js';
 
 // Custom Wallpaper Gallery
 function initCustomWallpapers(bgPreloader) {
@@ -281,6 +281,9 @@ export function initSettings(bgPreloader = null) {
             // Show visual feedback
             const originalBg = wallpaperThemeSelect.style.background;
             wallpaperThemeSelect.style.background = 'rgba(16, 185, 129, 0.2)';
+            
+            // Reset wallpaper history for the new theme to start fresh
+            resetUsedWallpapers(newTheme);
             
             // Unlock wallpaper if it's locked (custom wallpaper) to allow theme change
             if (bgPreloader.isWallpaperLocked()) {

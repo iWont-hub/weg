@@ -23,7 +23,6 @@ html {
 body {
     margin: 0;
     font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-color);
     color: var(--fg-color);
     display: flex;
     flex-direction: column;
@@ -52,7 +51,7 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.6);
     pointer-events: none;
     z-index: 0;
     transition: var(--transition);
