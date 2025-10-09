@@ -203,6 +203,7 @@ export function initSettings(bgPreloader = null) {
     const settingsClose = document.getElementById('settingsClose');
     const fontSelect = document.getElementById('fontSelect');
     const weatherToggle = document.getElementById('weatherToggle');
+    const moonToggle = document.getElementById('moonToggle');
     const quoteToggle = document.getElementById('quoteToggle');
     const tempUnitSelect = document.getElementById('tempUnitSelect');
     const timeFormatSelect = document.getElementById('timeFormatSelect');
@@ -213,6 +214,7 @@ export function initSettings(bgPreloader = null) {
     // Set current values
     if (fontSelect) fontSelect.value = settings.fontFamily;
     if (weatherToggle) weatherToggle.checked = settings.weatherEnabled;
+    if (moonToggle) moonToggle.checked = settings.moonEnabled;
     if (quoteToggle) quoteToggle.checked = settings.quoteEnabled;
     if (tempUnitSelect) tempUnitSelect.value = settings.temperatureUnit || 'C';
     if (timeFormatSelect) timeFormatSelect.value = settings.timeFormat || '12';
@@ -328,6 +330,7 @@ export function initSettings(bgPreloader = null) {
     }
 
     createToggleHandler(weatherToggle, 'weatherEnabled');
+    createToggleHandler(moonToggle, 'moonEnabled');
     createToggleHandler(quoteToggle, 'quoteEnabled');
 
     // Show onboarding button

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/search.css">
     <link rel="stylesheet" href="css/bookmarks.css">
     <link rel="stylesheet" href="css/weather.css">
+    <link rel="stylesheet" href="css/moon.css">
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/onboarding.css">
     <link rel="stylesheet" href="css/wallpaper-lock.css">
@@ -62,6 +63,20 @@
     <!-- Weather Widget on Right Side -->
     <div class="weather-widget" id="weatherWidget">
         <div id="weather" class="loading">Loading weather...</div>
+    </div>
+
+    <!-- Moon Phase Widget -->
+    <div class="moon-widget" id="moonWidget">
+        <div class="moon-header">
+            <div class="moon-location">
+                <i data-lucide="moon"></i>
+                Moon Phases
+            </div>
+            <div class="moon-update">Live</div>
+        </div>
+        <div class="moon-phases" id="moonPhases">
+            <div class="moon-phase loading">Loading phases...</div>
+        </div>
     </div>
 
     <!-- Settings Panel -->
@@ -218,6 +233,15 @@
                                     <span class="toggle-label">Weather Widget</span>
                                 </label>
                                 <p class="setting-description">Show weather forecast</p>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <label class="setting-toggle compact">
+                                    <input type="checkbox" id="moonToggle" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Moon Phase Widget</span>
+                                </label>
+                                <p class="setting-description">Show current and upcoming moon phases</p>
                             </div>
                             
                             <div class="setting-item">

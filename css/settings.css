@@ -57,6 +57,7 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     transform: scale(0.8) translateY(40px) rotate(-5deg);
     transition: var(--spring-transition);
+    font-family: 'Poppins', sans-serif;
 }
 
 .settings-overlay.show .settings-panel {

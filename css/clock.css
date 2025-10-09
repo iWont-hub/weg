@@ -14,6 +14,7 @@
     hyphens: auto;
     transition: var(--spring-transition);
     transform-origin: center;
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 #greeting.updating {
@@ -68,6 +69,7 @@
     line-height: 1.5;
     transition: var(--spring-transition);
     transform-origin: center;
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .quote.updating {
@@ -85,7 +87,7 @@
     text-shadow: 0 4px 20px rgba(255,255,255,0.1);
     font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .clock .digit {

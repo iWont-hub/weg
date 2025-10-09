@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
 export const DEFAULT_SETTINGS = {
     fontFamily: 'Inter',
     weatherEnabled: true,
+    moonEnabled: true,
     quoteEnabled: true,
     temperatureUnit: 'C', // C for Celsius, F for Fahrenheit
     timeFormat: '12', // 12 or 24 hour format
@@ -39,14 +40,16 @@ export function saveSettings(settings) {
 
 // Apply settings to page
 export function applySettings(settings) {
-    // Apply font family with animation
+    // Apply font family globally via CSS variable
     document.documentElement.style.setProperty('--font-family', `"${settings.fontFamily}"`);
     
-    // Animate font change
-    document.body.style.transition = 'font-family 0.5s ease';
+    // Also apply directly to body for immediate effect
+    document.body.style.fontFamily = `"${settings.fontFamily}", -apple-system, BlinkMacSystemFont, sans-serif`;
+    document.body.style.transition = 'font-family 0.3s ease';
     
     // Toggle widgets with animations
     const weatherWidget = document.getElementById('weatherWidget');
+    const moonWidget = document.getElementById('moonWidget');
     const quoteEl = document.getElementById('quote');
     
     // Helper function to show/hide widgets
@@ -63,6 +66,7 @@ export function applySettings(settings) {
     }
     
     toggleWidget(weatherWidget, settings.weatherEnabled);
+    toggleWidget(moonWidget, settings.moonEnabled);
     
     if (quoteEl) {
         if (settings.quoteEnabled) {

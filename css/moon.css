@@ -1,0 +1,317 @@
+/* Moon Phase Widget Styles - Clean & Intuitive */
+.moon-widget {
+    position: fixed;
+    top: 260px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    min-width: 280px;
+    max-width: 280px;
+    width: 280px;
+    z-index: 9;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+}
+
+/* Move down when weather location input is shown */
+.moon-widget.shifted {
+    transform: translateY(140px) !important;
+    top: 260px;
+}
+
+.moon-widget.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.moon-widget.show.shifted {
+    transform: translateY(140px) !important;
+}
+
+.moon-widget:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.moon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    position: relative;
+}
+
+.moon-location {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: var(--transition);
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.moon-location i {
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+}
+
+.moon-update {
+    opacity: 0.6;
+}
+
+.moon-phases {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.moon-phase {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.moon-phase::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transition: left 0.6s ease;
+}
+
+.moon-phase:hover::before {
+    left: 100%;
+}
+
+.moon-phase:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.moon-phase.current {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.moon-phase-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Visual Moon Representations */
+.moon-visual {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.moon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.9);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.moon-shadow {
+    position: absolute;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(30, 30, 50, 0.95);
+    transition: all 0.3s ease;
+}
+
+/* New Moon - Completely dark */
+.moon-visual.empty .moon-circle {
+    background: rgba(60, 60, 80, 0.8);
+    box-shadow: 0 0 8px rgba(100, 100, 120, 0.2);
+}
+
+.moon-visual.empty .moon-shadow {
+    width: 32px;
+    left: 0;
+}
+
+/* Waxing Crescent - Small sliver on right */
+.moon-visual.waxing-25 .moon-shadow {
+    width: 28px;
+    left: 0;
+    border-radius: 50% 30% 30% 50%;
+}
+
+/* First Quarter - Half moon (right half lit) */
+.moon-visual.half .moon-shadow {
+    width: 16px;
+    left: 0;
+    border-radius: 50% 0 0 50%;
+}
+
+/* Waxing Gibbous - Mostly full (small shadow on left) */
+.moon-visual.waxing-75 .moon-shadow {
+    width: 12px;
+    left: 0;
+    border-radius: 50% 20% 20% 50%;
+}
+
+/* Full Moon - Completely lit */
+.moon-visual.full .moon-circle {
+    background: rgba(251, 191, 36, 1);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+}
+
+.moon-visual.full .moon-shadow {
+    display: none;
+}
+
+/* Waning Gibbous - Shadow starts from right */
+.moon-visual.waning-75 .moon-shadow {
+    width: 12px;
+    right: 0;
+    left: auto;
+    border-radius: 20% 50% 50% 20%;
+}
+
+/* Last Quarter - Half moon (left half lit) */
+.moon-visual.half-reverse .moon-shadow {
+    width: 16px;
+    right: 0;
+    left: auto;
+    border-radius: 0 50% 50% 0;
+}
+
+/* Waning Crescent - Small sliver on left */
+.moon-visual.waning-25 .moon-shadow {
+    width: 28px;
+    right: 0;
+    left: auto;
+    border-radius: 30% 50% 50% 30%;
+}
+
+.moon-visual:hover {
+    transform: scale(1.15);
+}
+
+.moon-visual:hover .moon-circle {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+.moon-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.moon-phase-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.moon-date {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.moon-date-actual {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.moon-percentage {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 4px 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.moon-phase.current .moon-percentage {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.moon-phase.loading {
+    justify-content: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px;
+}
+
+/* Expanded moon phase info */
+.moon-phase-expanded {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+    opacity: 0;
+    margin: 0;
+}
+
+.moon-phase-expanded.show {
+    max-height: 150px;
+    opacity: 1;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.moon-info-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.moon-info-content p {
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .moon-widget {
+        display: none;
+    }
+}

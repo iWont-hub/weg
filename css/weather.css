@@ -13,6 +13,7 @@
     transition: var(--spring-transition);
     min-width: 250px;
     z-index: 10;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .weather-widget:hover {
@@ -36,6 +37,7 @@
     align-items: center;
     gap: 4px;
     transition: var(--transition);
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .weather-location:hover {
@@ -62,10 +64,11 @@
     margin-top: 8px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     z-index: 100;
     display: none;
 }
@@ -78,7 +81,7 @@
 .weather-location-input input {
     width: 100%;
     padding: 8px 12px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.08);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     color: #fff;
@@ -90,7 +93,7 @@
 
 .weather-location-input input:focus {
     border-color: var(--accent-color);
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.12);
 }
 
 .weather-location-actions {
@@ -101,7 +104,7 @@
 .weather-location-btn {
     flex: 1;
     padding: 6px 12px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.15);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     color: #fff;
@@ -111,7 +114,7 @@
 }
 
 .weather-location-btn:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.2);
     transform: scale(1.02);
 }
 

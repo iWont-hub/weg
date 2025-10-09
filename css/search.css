@@ -50,7 +50,7 @@ input {
     width: 100%;
     background: transparent;
     color: #fff;
-    font-family: inherit;
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 400;
     outline: none;
     border-radius: 50px;
@@ -58,6 +58,7 @@ input {
 
 input::placeholder {
     color: rgba(255,255,255,0.5);
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Engine selector */
@@ -72,6 +73,7 @@ input::placeholder {
     cursor: pointer;
     transition: var(--transition);
     border-radius: 50px;
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .engine-wrapper:hover {

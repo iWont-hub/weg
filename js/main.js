@@ -6,6 +6,7 @@ import { BackgroundPreloader } from './core/background.js';
 import { updateGreeting, displayQuote } from './widgets/greeting.js';
 import { initClock } from './widgets/clock.js';
 import { initWeather } from './widgets/weather.js';
+import { initMoonWidget } from './widgets/moon.js';
 import { initializeSearchEngine } from './widgets/search.js';
 import { renderBookmarks } from './widgets/bookmarks.js';
 import { pickLocalWallpaper, pickUnsplashWallpaper } from './widgets/wallpaper.js';
@@ -102,6 +103,7 @@ async function init() {
     initializeSearchEngine();
     renderBookmarks();
     initWeather();
+    initMoonWidget();
     initKeyboardShortcuts();
     initOnboarding();
     initWallpaperLock();

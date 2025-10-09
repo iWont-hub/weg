@@ -7,6 +7,8 @@ const engines = {
     brave: { action: 'https://search.brave.com/search', icon: 'https://brave.com/static-assets/images/brave-favicon.png', name: 'Brave' }
 };
 
+const SEARCH_ENGINE_KEY = 'selectedSearchEngine';
+
 // Search history management
 let searchHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.searchHistory) || '[]');
 
@@ -83,6 +85,15 @@ export function initializeSearchEngine() {
     const form = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
 
+    // Load saved search engine or default to google
+    const savedEngine = localStorage.getItem(SEARCH_ENGINE_KEY) || 'google';
+    const engine = engines[savedEngine];
+    
+    // Set initial state
+    form.action = engine.action;
+    currentIcon.src = engine.icon;
+    searchInput.placeholder = `Search with ${engine.name}`;
+
     // Engine switcher with enhanced animations
     currentIcon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -103,6 +114,10 @@ export function initializeSearchEngine() {
             const engineKey = icon.dataset.action;
             const engine = engines[engineKey];
             
+            // Save selected engine to localStorage
+            localStorage.setItem(SEARCH_ENGINE_KEY, engineKey);
+            console.log('Search engine saved:', engineKey);
+            
             // Add selection animation
             currentIcon.style.transform = 'scale(0.8) rotate(180deg)';
             
@@ -118,7 +133,7 @@ export function initializeSearchEngine() {
     });
 
     // Set initial placeholder
-    searchInput.placeholder = "Search with Google";
+    // Already set above when loading saved engine
 
     // Search focus effects
     searchInput.addEventListener('focus', () => {

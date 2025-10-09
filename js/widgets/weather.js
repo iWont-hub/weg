@@ -89,19 +89,35 @@ export function initWeather() {
     function showLocationInput() {
         const input = document.getElementById('weatherLocationInput');
         const searchInput = document.getElementById('locationSearchInput');
+        const moonWidget = document.getElementById('moonWidget');
+        console.log('showLocationInput called', { input, moonWidget });
         if (input) {
             input.classList.add('show');
             searchInput.focus();
             searchInput.select();
+            // Move moon widget down
+            if (moonWidget) {
+                console.log('Adding shifted class to moon widget');
+                moonWidget.classList.add('shifted');
+            } else {
+                console.log('Moon widget not found!');
+            }
         }
     }
 
     function hideLocationInput() {
         const input = document.getElementById('weatherLocationInput');
+        const moonWidget = document.getElementById('moonWidget');
+        console.log('hideLocationInput called', { input, moonWidget });
         if (input) {
             input.classList.remove('show');
             document.getElementById('locationSearchInput').value = '';
             document.getElementById('locationSearchResults').innerHTML = '';
+            // Move moon widget back up
+            if (moonWidget) {
+                console.log('Removing shifted class from moon widget');
+                moonWidget.classList.remove('shifted');
+            }
         }
     }
 
